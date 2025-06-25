@@ -211,4 +211,3 @@ pnpm start
 For issues and questions:
 - Create an issue in this repository
 - Check the [troubleshooting section](#troubleshooting)
-- Review the [API documentation](docs/api-reference.md)
