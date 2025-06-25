@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  members     Member[]
+  sprints     Sprint[]
+  tickets     Ticket[]
+  
+  @@map("teams")
+}
+
+model Member {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  role      String?
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id])
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("members")
+}
+
+model Sprint {
+  id          String    @id @default(cuid())
+  name        String
+  startDate   DateTime
+  endDate     DateTime
+  teamId      String
+  team        Team      @relation(fields: [teamId], references: [id])
+  tickets     Ticket[]
+  velocity    Int?      // Story points completed
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@map("sprints")
+}
+
+model Ticket {
+  id              String     @id @default(cuid())
+  title           String
+  description     String?
+  type            TicketType @default(FEATURE)
+  status          TicketStatus @default(TODO)
+  priority        Priority   @default(MEDIUM)
+  storyPoints     Int?
+  estimatedHours  Float?
+  actualHours     Float?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  resolvedAt      DateTime?
+  teamId          String
+  team            Team       @relation(fields: [teamId], references: [id])
+  assigneeId      String?
+  assignee        Member?    @relation(fields: [assigneeId], references: [id])
+  sprintId        String?
+  sprint          Sprint?    @relation(fields: [sprintId], references: [id])
+  
+  @@map("tickets")
+}
+
+enum TicketType {
+  FEATURE
+  BUG
+  TASK
+  EPIC
+}
+
+enum TicketStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  TESTING
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
